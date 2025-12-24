@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 });
 
 /* ======================================================
-   API Handler
+   API Handler (QUERY PARAMS)
 ====================================================== */
 export default async function handler(req, res) {
   /* =======================
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "POST, OPTIONS"
+    "GET, OPTIONS"
   );
   res.setHeader("Access-Control-Max-Age", "86400");
 
@@ -49,19 +49,26 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST allowed" });
+  if (req.method !== "GET") {
+    return res.status(405).json({
+      error: "Only GET allowed",
+    });
   }
 
   try {
-    const { uid, title, content } = req.body || {};
+    const { uid, title, content } = req.query || {};
 
     if (!uid || !title || !content) {
       return res.status(400).json({
-        error: "uid, title and content are required",
+        error: "uid, title and content are required as query params",
       });
     }
 
+    /* -------- Decode URL params -------- */
+    const decodedTitle = decodeURIComponent(title);
+    const decodedContent = decodeURIComponent(content);
+
+    /* -------- Get user email -------- */
     const user = await admin.auth().getUser(uid);
 
     if (!user.email) {
@@ -70,12 +77,13 @@ export default async function handler(req, res) {
       });
     }
 
+    /* -------- Send email -------- */
     await transporter.sendMail({
       from: `"Credible" <${process.env.SMTP_EMAIL}>`,
       to: user.email,
-      subject: title,
-      text: content,
-      html: `<p>${content.replace(/\n/g, "<br/>")}</p>`,
+      subject: decodedTitle,
+      text: decodedContent,
+      html: `<p>${decodedContent.replace(/\n/g, "<br/>")}</p>`,
     });
 
     return res.status(200).json({
