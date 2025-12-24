@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Credible – FCM Push Console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+body {
+  font-family: Inter, system-ui, -apple-system;
+  background: #0b0b0b;
+  color: #fff;
+  padding: 24px;
+}
+
+.container {
+  max-width: 520px;
+  margin: auto;
+}
+
+h2 {
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background: #111;
+  color: #fff;
+  border: 1px solid #262626;
+  border-radius: 8px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+button {
+  margin-top: 14px;
+  padding: 12px;
+  width: 100%;
+  background: #2563eb;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+pre {
+  margin-top: 16px;
+  background: #111;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  overflow-x: auto;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>FCM Push Notification</h2>
+
+  <input id="token" placeholder="FCM Device Token" />
+  <input id="title" placeholder="Notification Title" />
+  <textarea id="body" placeholder="Notification Content"></textarea>
+  <input id="imageUrl" placeholder="Image URL (optional)" />
+
+  <button onclick="sendNotification()">Send Notification</button>
+
+  <pre id="result"></pre>
+</div>
+
+<script>
+const API = "https://credible-noti-git-main-sanjayys-projects.vercel.app/api/fcm";
+
+async function sendNotification() {
+  const token = document.getElementById("token").value.trim();
+  const title = document.getElementById("title").value.trim();
+  const body = document.getElementById("body").value.trim();
+  const imageUrl = document.getElementById("imageUrl").value.trim();
+  const result = document.getElementById("result");
+
+  if (!token || !title || !body) {
+    alert("FCM token, title, and content are required");
+    return;
+  }
+
+  const payload = {
+    token,
+    title,
+    body,
+    ...(imageUrl ? { imageUrl } : {})
+  };
+
+  result.textContent = "Sending...";
+
+  try {
+    const res = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const text = await res.text();
+
+    try {
+      result.textContent = JSON.stringify(JSON.parse(text), null, 2);
+    } catch {
+      result.textContent = text;
+    }
+
+  } catch (err) {
+    result.textContent = err.message;
+  }
+}
+</script>
+</body>
+</html>
