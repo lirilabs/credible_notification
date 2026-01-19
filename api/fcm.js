@@ -1,14 +1,14 @@
 import admin from "firebase-admin";
 
 /* ======================================================
-   FORCE NODE RUNTIME (CRITICAL FOR FIREBASE ADMIN)
+   FORCE NODE RUNTIME (REQUIRED)
 ====================================================== */
 export const config = {
   runtime: "nodejs",
 };
 
 /* ======================================================
-   FIREBASE ADMIN INITIALIZATION (SAFE SINGLETON)
+   FIREBASE ADMIN INIT (SAFE SINGLETON)
 ====================================================== */
 if (!admin.apps.length) {
   const {
@@ -38,9 +38,7 @@ if (!admin.apps.length) {
    API HANDLER
 ====================================================== */
 export default async function handler(req, res) {
-  /* -----------------------
-     CORS (STRICT + FAST)
-  ----------------------- */
+  /* ---------- CORS ---------- */
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader(
