@@ -70,13 +70,15 @@ pre {
   <textarea id="body" placeholder="Notification Content"></textarea>
   <input id="imageUrl" placeholder="Image URL (optional)" />
 
-  <button onclick="sendNotification()">Send Notification</button>
+  <button id="sendBtn">Send Notification</button>
 
   <pre id="result"></pre>
 </div>
 
 <script>
 const API = "https://credible-noti-git-main-sanjayys-projects.vercel.app/api/fcm";
+
+document.getElementById("sendBtn").addEventListener("click", sendNotification);
 
 async function sendNotification() {
   const token = document.getElementById("token").value.trim();
@@ -102,20 +104,17 @@ async function sendNotification() {
   try {
     const res = await fetch(API, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(payload)
     });
 
     const text = await res.text();
-
-    try {
-      result.textContent = JSON.stringify(JSON.parse(text), null, 2);
-    } catch {
-      result.textContent = text;
-    }
+    result.textContent = text;
 
   } catch (err) {
-    result.textContent = err.message;
+    result.textContent = "Network error: " + err.message;
   }
 }
 </script>
